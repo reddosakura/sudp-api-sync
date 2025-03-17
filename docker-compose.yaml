@@ -1,0 +1,109 @@
+services:
+
+  postgres:
+    container_name: postgres_00
+    image: postgres:17
+    restart: always
+    profiles: ["prod", database]
+    environment:
+      - POSTGRES_DB=vacs
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+        
+    #НАСТРОЙКА СЕТИ
+    hostname: database
+    networks:
+      - mainnet
+    ports:
+      - 3543:5432
+
+
+  user_service:
+    container_name: user_service_00
+    build: ./services/users
+    restart: always
+    env_file: ".env"
+    profiles: ["prod", "user_only"]
+    
+    #НАСТРОЙКА СЕТИ
+    hostname: userapi
+    networks:
+      - mainnet
+
+    ports:
+      - 3001:80
+    
+  request_service:
+    container_name: request_service_00
+    build: ./services/requests
+    restart: always
+    depends_on: 
+      - user_service
+    env_file: ".env"
+    profiles: ["prod", "request_only"]
+
+    #НАСТРОЙКА СЕТИ
+    hostname: requestapi
+    networks:
+      - mainnet
+    ports:
+      - 3002:80
+  
+  approval_pool_service:
+    container_name: appr_pool_service_00
+    build: ./services/approval_pool
+    restart: always
+    depends_on: 
+      - request_service
+    env_file: ".env" 
+    profiles: ["prod", "approval_pool_only"]
+
+    #НАСТРОЙКА СЕТИ
+    hostname: apprpoolapi
+    networks:
+      - mainnet
+    ports:
+      - 3003:80
+  
+  car_passage_service:
+    container_name: c_passage_service_00
+    build: ./services/car_passage
+    restart: always
+    depends_on: 
+      - request_service
+    env_file: ".env" 
+    profiles: ["prod", "c_passage_only"]
+
+    #НАСТРОЙКА СЕТИ
+    hostname: cpassageapi
+    networks:
+      - mainnet
+    ports:
+      - 3004:80
+
+
+  visitor_passage_service:
+    container_name: v_passage_service_00
+    build: ./services/visitor_passage
+    restart: always
+    depends_on: 
+      - request_service
+    env_file: ".env" 
+    profiles: ["prod", "v_passage_only"]
+
+    #НАСТРОЙКА СЕТИ
+    hostname: vpassageapi
+    networks:
+      - mainnet
+    ports:
+      - 3005:80
+        
+
+networks:
+  mainnet:
+    driver: bridge
+
+
+volumes:
+  pg_data:

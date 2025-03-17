@@ -1,0 +1,2 @@
+class CarPassageNotFound(Exception):
+    pass

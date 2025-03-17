@@ -1,0 +1,2 @@
+class ApprovalCommentNotFound(Exception):
+    pass

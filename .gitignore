@@ -1,0 +1,8 @@
+/.venv/
+/.idea/
+/services/requests/.idea/
+/services/users/.idea/
+/services/approval_pool/.idea/
+/services/car_passage_service/.idea/
+/services/car_passage/.idea/
+/services/visitor_passage/.idea/
