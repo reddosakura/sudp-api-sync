@@ -150,27 +150,27 @@ class RequestRepository:
             query = select(RequestMainModel).where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate))
                                                & sql.func.date(RequestMainModel.to_date).between(fdate, tdate))
         if monitoring:
-            query = select(RequestMainModel).where((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
+            query = select(RequestMainModel).join(RequestMainModel.status).where((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
                                                & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
                                                | (RequestMainModel.from_date > datetime.datetime.now().today())
-                                               ).where((RequestMainModel.status == RequestStatusEnum.ALLOWED.value))
+                                               ).where((RequestStatusModel.name == RequestStatusEnum.ALLOWED.value))
         if is_consideration:
-            query = select(RequestMainModel).join(RequestMainModel.request_type).where((fdate >= RequestMainModel.from_date)
+            query = select(RequestMainModel).join(RequestMainModel.status).where((fdate >= RequestMainModel.from_date)
                                            & (RequestMainModel.to_date >= tdate)
-                                           | (RequestMainModel.from_date > fdate)).where(RequestTypeModel.name == RequestStatusEnum.CONSIDERATION.value)
+                                           | (RequestMainModel.from_date > fdate)).where(RequestStatusModel.name == RequestStatusEnum.CONSIDERATION.value)
 
         if is_approval:
-            query = select(RequestMainModel).join(RequestMainModel.request_type).where((fdate >= RequestMainModel.from_date)
+            query = select(RequestMainModel).join(RequestMainModel.status).where((fdate >= RequestMainModel.from_date)
                                            & (RequestMainModel.to_date >= tdate)
-                                           | (RequestMainModel.from_date > fdate)).where(RequestTypeModel.name == RequestStatusEnum.APPROVE.value)
+                                           | (RequestMainModel.from_date > fdate)).where(RequestStatusModel.name == RequestStatusEnum.APPROVE.value)
 
         if is_admin:
-            query = (select(RequestMainModel).join(RequestMainModel.request_type).where((fdate >= RequestMainModel.from_date)
+            query = (select(RequestMainModel).join(RequestMainModel.status).where((fdate >= RequestMainModel.from_date)
                                            & (RequestMainModel.to_date >= tdate)
                                            | (RequestMainModel.from_date > fdate))
                         .where(
-                            (RequestTypeModel.name == RequestStatusEnum.PASSAPPROVAL.value) |
-                            (RequestTypeModel.name == RequestStatusEnum.APPROVE.value))
+                            (RequestStatusModel.name == RequestStatusEnum.PASSAPPROVAL.value) |
+                            (RequestStatusModel.name == RequestStatusEnum.APPROVE.value))
             )
 
 
