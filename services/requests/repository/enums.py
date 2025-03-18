@@ -11,14 +11,14 @@ from enum import Enum
 
 
 class RequestStatusEnum(Enum):
-    APPROVE = "СОГЛАСОВАНИЕ"
-    ALLOWED = "ОДОБРЕНА"
-    REJECTED = "ОТКЛОНЕНА"
-    WITHDRAWN = "ОТОЗВАНА"
-    CONSIDERATION = "РАССМОТРЕНИЕ"
-    CLOSED = "ЗАКРЫТА"
-    PASSAPPROVAL = "ПРОШЛА СОГЛАСОВАНИЕ"
-    UNPASSAPPROVAL = "НЕ ПРОШЛА СОГЛАСОВАНИЕ"
+    APPROVE = "Согласование"
+    ALLOWED = "Одобрена"
+    REJECTED = "Отклонена"
+    WITHDRAWN = "Отозвана"
+    CONSIDERATION = "Рассмотрение"
+    CLOSED = "Закрыта"
+    PASSAPPROVAL = "Прошла согласование"
+    UNPASSAPPROVAL = "Не прошла согласование"
 
 #
 # class PassageReportsMode(str, Enum):

@@ -4,7 +4,7 @@ import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from requests.repository.models import SqlAlchemyBase
+from ..repository.models import SqlAlchemyBase
 from sqlalchemy.orm import sessionmaker
 
 

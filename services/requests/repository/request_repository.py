@@ -9,16 +9,16 @@ from sqlalchemy import (
     update
 )
 
-from requests.repository.enums import RequestStatusEnum
-from requests.repository.models import (
+from .enums import RequestStatusEnum
+from .models import (
     RequestMainModel,
     VisitorModel,
     CarModel,
     FileModel, RequestTypeModel,
     PassageModeModel, RequestStatusModel, TransportTypeModel
 )
-from requests.requests_service.exceptions import RequestNotFoundException
-from requests.requests_service.request import Request, RequestType, Car, Visitor, PassageMode, TransportType, File, RequestStatus
+from ..requests_service.exceptions import RequestNotFoundException
+from ..requests_service.request import Request, RequestType, Car, Visitor, PassageMode, TransportType, File, RequestStatus
 
 
 class RequestRepository:
@@ -139,6 +139,9 @@ class RequestRepository:
                     fdate: datetime.datetime = datetime.datetime.now().date(),
                     tdate: datetime.datetime = datetime.datetime.now().date(),
                     is_filtered: bool = False,
+                    is_consideration: bool = False,
+                    is_approval: bool = False,
+                    is_admin: bool = False,
                     creator: str = None):
         query = select(RequestMainModel).where((fdate >= RequestMainModel.from_date)
                                            & (RequestMainModel.to_date >= tdate)
@@ -151,6 +154,26 @@ class RequestRepository:
                                                & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
                                                | (RequestMainModel.from_date > datetime.datetime.now().today())
                                                ).where((RequestMainModel.status == RequestStatusEnum.ALLOWED.value))
+        if is_consideration:
+            query = select(RequestMainModel).join(RequestMainModel.request_type).where((fdate >= RequestMainModel.from_date)
+                                           & (RequestMainModel.to_date >= tdate)
+                                           | (RequestMainModel.from_date > fdate)).where(RequestTypeModel.name == RequestStatusEnum.CONSIDERATION.value)
+
+        if is_approval:
+            query = select(RequestMainModel).join(RequestMainModel.request_type).where((fdate >= RequestMainModel.from_date)
+                                           & (RequestMainModel.to_date >= tdate)
+                                           | (RequestMainModel.from_date > fdate)).where(RequestTypeModel.name == RequestStatusEnum.APPROVE.value)
+
+        if is_admin:
+            query = (select(RequestMainModel).join(RequestMainModel.request_type).where((fdate >= RequestMainModel.from_date)
+                                           & (RequestMainModel.to_date >= tdate)
+                                           | (RequestMainModel.from_date > fdate))
+                        .where(
+                            (RequestTypeModel.name == RequestStatusEnum.PASSAPPROVAL.value) |
+                            (RequestTypeModel.name == RequestStatusEnum.APPROVE.value))
+            )
+
+
         if creator:
             query = query.where(RequestMainModel.creator == creator).where(~RequestMainModel.is_deleted)
 

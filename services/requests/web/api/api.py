@@ -7,8 +7,11 @@ from starlette import status
 
 from requests.repository.database_unit import DatabaseUnit
 from requests.repository.request_repository import RequestRepository
-from requests.requests_service.request import Request
 from requests.requests_service.requests_service import RequestsService
+# from requests.repository.database_unit import DatabaseUnit
+# from requests.repository.request_repository import RequestRepository
+# from requests.requests_service.request import Request
+# from requests.requests_service.requests_service import RequestsService
 from .schemas import (
     ListRequest,
     RequestSchema,
@@ -82,12 +85,15 @@ def get_list_requests(monitoring: bool = False,
                     fdate: datetime.datetime = datetime.datetime.now().date(),
                     tdate: datetime.datetime = datetime.datetime.now().date(),
                     is_filtered: bool = False,
+                    is_consideration: bool = False,
+                    is_approval: bool = False,
+                    is_admin: bool = False,
                     creator: str = None):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
             request_service = RequestsService(repo)
-            results = request_service.list_requests(monitoring, fdate, tdate, is_filtered, creator)
+            results = request_service.list_requests(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator)
 
     value = [result.to_dict() | {"type_id": result.type_id[0]} for result in results]
     print(value, "<--- request_ list")

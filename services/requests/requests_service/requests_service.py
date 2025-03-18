@@ -1,6 +1,6 @@
 from importlib.metadata import files
 
-from requests.repository.request_repository import RequestRepository
+from ..repository.request_repository import RequestRepository
 from .exceptions import RequestNotFoundException
 
 
@@ -11,8 +11,8 @@ class RequestsService:
     def get_request(self, request_id):
         return self.request_repository.get(request_id)
 
-    def list_requests(self, monitoring, fdate, tdate, is_filtered, creator_id):
-        return self.request_repository.list(monitoring, fdate, tdate, is_filtered, creator_id)
+    def list_requests(self, monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator_id):
+        return self.request_repository.list(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator_id)
 
     def search_request(self, value, monitoring, is_filtered, is_reports, creator_id, fdate, tdate):
         return self.request_repository.search(value, monitoring, is_filtered, is_reports, creator_id, fdate, tdate)
@@ -38,9 +38,6 @@ class RequestsService:
 
     def get_request_types(self):
         types = self.request_repository.get_all_types()
-
-        print([type_.to_dict() for type_ in types], "<--- service data")
-
         return types
 
     def get_request_passmodes(self):

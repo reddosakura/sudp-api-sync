@@ -1,10 +1,3 @@
-import uuid
-
-import httpx
-
-from requests.requests_service.exceptions import UserApiInvalidException
-
-
 class RequestType:
     def __init__(self, id, name):
         self.id = id

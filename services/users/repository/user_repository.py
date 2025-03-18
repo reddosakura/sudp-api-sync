@@ -84,10 +84,11 @@ class UserRepository:
             select(RoleModel)
         )
 
-        roles = fetched_data.scalars()
+        roles = list(fetched_data.scalars())
+        print(list(roles), "<-- roles list")
 
-        if not roles:
-            print(roles, "<-- raised")
+        if not list(roles):
+            print(list(roles), "<-- raised")
             raise RolesDoesntExistException("Roles doesnt exist in database. Роли не были инициализированы")
 
         return [Role(**data.to_dict()) for data in roles]
@@ -96,6 +97,6 @@ class UserRepository:
     def get_role_by_name(self, name):
         role = (self.session.execute(
             select(RoleModel).where(RoleModel.name == name)
-        )).one()[0]
+        )).scalar()
 
         return Role(**(role.to_dict()))
