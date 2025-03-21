@@ -1,3 +1,8 @@
+import httpx
+
+from requests.requests_service.exceptions import UserApiInvalidException
+
+
 class RequestType:
     def __init__(self, id, name):
         self.id = id
@@ -145,6 +150,7 @@ class Car:
 class Request:
 
     def __init__(self, type_id,
+                 date_created,
                  contract_name, organization,
                  from_date, to_date,
                  from_time, to_time,
@@ -156,7 +162,8 @@ class Request:
                  ):
         self.creator_ = None
         self.id = id
-        self.type_id = type_id,
+        self.date_created = date_created
+        self.type_id = type_id
         self.contract_name = contract_name
         self.organization = organization
         self.from_date = from_date
@@ -176,28 +183,31 @@ class Request:
         self.passmode_ = passmode
         # self.approval_comments_ = approval_comments
         # self.creator_ = creatorobj
-        # self.timeout = httpx.Timeout(10.0, read=None)
+        self.timeout = httpx.Timeout(10.0, read=None)
 
 
-    # async def get_creator(self):
-    #     async with httpx.AsyncClient() as client:
-    #         response = await client.get(
-    #             "http://userapi/users/" + self.creator_id + "/",
-    #             headers={
-    #                 "accept": "application/json",
-    #                 # "Authorization": f"Bearer {access_token}",
-    #             },
-    #             timeout=self.timeout
-    #         )
-    #         if response.status_code != 200:
-    #             raise UserApiInvalidException("User API returned invalid code. Сервис пользователей вернул неверный код")
-    #     return response.json()
+    def get_creator(self):
+        url = "http://userapi/api/v3/users/" + str(self.creator)
+        print(url)
+        with httpx.Client() as client:
+            response = client.get(
+                url,
+                headers={
+                    "accept": "application/json",
+                    # "Authorization": f"Bearer {access_token}",
+                },
+                timeout=self.timeout
+            )
+            if response.status_code != 200:
+                raise UserApiInvalidException("User API returned invalid code. Сервис пользователей вернул неверный код")
+        return response.json()
 
 
 
     def to_dict(self):
         return {
             "id": self.id,
+            "date_created": self.date_created,
             "type_id": self.type_id,
             "contract_name": self.contract_name,
             "organization": self.organization,
@@ -216,6 +226,7 @@ class Request:
             "type": self.type_ if self.type_ else None,
             "status": self.status_.to_dict() if self.status_ else None,
             "passmode": self.passmode_.to_dict() if self.passmode_ else None,
+            "creatorobj": self.get_creator()
             # "files": [f for f in self.files_] if self.files_ else None,
             # "visitors": [v.to_dict() for v in self.visitors_] if self.visitors_ else None,
             # "cars": [c.to_dict() for c in self.cars_] if self.cars_ else None,

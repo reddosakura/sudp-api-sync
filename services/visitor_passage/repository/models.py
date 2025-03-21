@@ -123,11 +123,12 @@ class RequestMainModel(SqlAlchemyBase):
     passmode_id: Mapped[int] = mapped_column(ForeignKey('passmode.id'))
     creator: Mapped[int] = mapped_column(ForeignKey('user.id'))
     is_deleted: Mapped[bool] = mapped_column(default=False)
+    date_created: Mapped[current_date]
 
     # BACK POPULATE
     visitors: Mapped[List['VisitorModel']] = relationship(lazy='selectin')
     cars: Mapped[List['CarModel']] = relationship(lazy='selectin')
-    # creatorobj: Mapped['UserModel'] = relationship(back_populates='requests')
+    creatorobj: Mapped['UserModel'] = relationship(lazy='selectin')
     request_type: Mapped['RequestTypeModel'] = relationship(lazy='selectin')
     passmode: Mapped['PassageModeModel'] = relationship(lazy='selectin')
     status: Mapped['RequestStatusModel'] = relationship(lazy='selectin')

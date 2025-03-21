@@ -1,3 +1,6 @@
+import datetime
+
 from werkzeug.security import generate_password_hash
 
-print(generate_password_hash("1234qwerty",method="pbkdf2:sha256", salt_length=8))
+url = "http://userapi/users/" + str('12323'),
+print(url)

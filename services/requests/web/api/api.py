@@ -95,7 +95,7 @@ def get_list_requests(monitoring: bool = False,
             request_service = RequestsService(repo)
             results = request_service.list_requests(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator)
 
-    value = [result.to_dict() | {"type_id": result.type_id[0]} for result in results]
+    value = [result.to_dict() for result in results]
     print(value, "<--- request_ list")
 
     return {
@@ -117,7 +117,7 @@ def get_search_request(value, monitoring: bool = False,
             results = request_service.search_request(value, monitoring, is_filtered,
                                                            is_reports, creator, fdate, tdate)
 
-    value = [result.to_dict() | {"type_id": result.type_id[0]} for result in results]
+    value = [result.to_dict() for result in results]
     print(value, "<--- request_ search")
     return {
         "requests": value
@@ -125,7 +125,7 @@ def get_search_request(value, monitoring: bool = False,
 
 
 @router.get("/request/{request_id}", response_model=RequestSchema, tags=["Получение заявки по ID"])
-def get_request(request_id: uuid.UUID):
+def get_request(request_id: int):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
@@ -211,7 +211,6 @@ def create_request(payload: RequestFullCreationSchema):
             result = request_service.create_request(**payload.model_dump())
             unit.commit()
 
-    result.type_id = result.type_id[0]
     return result
 
 @router.post("/request/create/visitors", response_model=List[VisitorBaseSchema], tags=["Создание посетителей"])

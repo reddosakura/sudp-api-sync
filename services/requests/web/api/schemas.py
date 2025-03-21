@@ -127,6 +127,7 @@ class CarSchema(CarBaseSchema):
 
 class RequestSchema(BaseModel):
     id: int
+    date_created: datetime.datetime
     type_id: uuid.UUID
     contract_name: str
     organization: str
@@ -145,7 +146,7 @@ class RequestSchema(BaseModel):
     type: RequestTypeSchema
     status: RequestStatusSchema
     passmode: PassageModeSchema
-    # creator: dict
+    creatorobj: dict
 
     class Config:
         from_attributes = True
