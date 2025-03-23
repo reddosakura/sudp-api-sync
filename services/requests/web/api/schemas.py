@@ -154,6 +154,7 @@ class RequestSchema(BaseModel):
 
 class RequestBaseSchema(BaseModel):
     type_id: uuid.UUID
+    date_created: datetime.datetime = datetime.datetime.now()
     contract_name: str
     organization: str
     from_date: datetime.datetime

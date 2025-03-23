@@ -156,19 +156,13 @@ class RequestRepository:
                                                | (RequestMainModel.from_date > datetime.datetime.now().today())
                                                ).where((RequestStatusModel.name == RequestStatusEnum.ALLOWED.value))
         if is_consideration:
-            query = select(RequestMainModel).join(RequestMainModel.status).where((fdate >= RequestMainModel.from_date)
-                                           & (RequestMainModel.to_date >= tdate)
-                                           | (RequestMainModel.from_date > fdate)).where(RequestStatusModel.name == RequestStatusEnum.CONSIDERATION.value)
+            query = select(RequestMainModel).join(RequestMainModel.status).where(RequestStatusModel.name == RequestStatusEnum.CONSIDERATION.value)
 
         if is_approval:
-            query = select(RequestMainModel).join(RequestMainModel.status).where((fdate >= RequestMainModel.from_date)
-                                           & (RequestMainModel.to_date >= tdate)
-                                           | (RequestMainModel.from_date > fdate)).where(RequestStatusModel.name == RequestStatusEnum.APPROVE.value)
+            query = select(RequestMainModel).join(RequestMainModel.status).where(RequestStatusModel.name == RequestStatusEnum.APPROVE.value)
 
         if is_admin:
-            query = (select(RequestMainModel).join(RequestMainModel.status).where((fdate >= RequestMainModel.from_date)
-                                           & (RequestMainModel.to_date >= tdate)
-                                           | (RequestMainModel.from_date > fdate))
+            query = (select(RequestMainModel).join(RequestMainModel.status)
                         .where(
                             (RequestStatusModel.name == RequestStatusEnum.PASSAPPROVAL.value) |
                             (RequestStatusModel.name == RequestStatusEnum.APPROVE.value))
