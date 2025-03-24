@@ -110,7 +110,7 @@ class TransportTypeModel(SqlAlchemyBase):
 class RequestMainModel(SqlAlchemyBase):
     __tablename__ = 'request_main'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    type_id: Mapped[int] = mapped_column(ForeignKey('request_type.id'))
+    type_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('request_type.id'))
     contract_name: Mapped[str] = mapped_column(index=True)
     organization: Mapped[str] = mapped_column(index=True)
     from_date: Mapped[datetime]
@@ -119,8 +119,8 @@ class RequestMainModel(SqlAlchemyBase):
     to_time: Mapped[time]
     comment: Mapped[str]
     # request_type_id: Mapped[int] = mapped_column(ForeignKey('request_type.id'))
-    request_status_id: Mapped[int] = mapped_column(ForeignKey('request_status.id'))
-    passmode_id: Mapped[int] = mapped_column(ForeignKey('passmode.id'))
+    request_status_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('request_status.id'))
+    passmode_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('passmode.id'))
     creator: Mapped[int] = mapped_column(ForeignKey('user.id'))
     is_deleted: Mapped[bool] = mapped_column(default=False)
     date_created: Mapped[current_date]
@@ -142,6 +142,7 @@ class RequestMainModel(SqlAlchemyBase):
     def to_dict(self):
         return {
             'id': self.id,
+            'date_created': self.date_created,
             'type_id': self.type_id,
             'contract_name': self.contract_name,
             'organization': self.organization,
@@ -329,6 +330,7 @@ class ApprovalCommentsModel(SqlAlchemyBase):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     request_status_id: Mapped[int] = mapped_column(ForeignKey('request_status.id'))
     comment: Mapped[str]
+    created_date: Mapped[current_date]
 
     # BACK POPULATE
     status: Mapped['RequestStatusModel'] = relationship(lazy='selectin')
@@ -343,4 +345,5 @@ class ApprovalCommentsModel(SqlAlchemyBase):
             'request_status_id': self.request_status_id,
             'comment': self.comment,
             'status': self.status.to_dict(),
+            'created_date': self.created_date
         }

@@ -1,4 +1,5 @@
 import uuid
+import datetime
 
 from pydantic import BaseModel
 
@@ -9,6 +10,7 @@ class ApprovalBaseSchema(BaseModel):
     user_id: uuid.UUID
     request_status_id: uuid.UUID
     comment: str
+    created_date: datetime.datetime = datetime.datetime.now()
 
     class Config:
         from_attributes = True
