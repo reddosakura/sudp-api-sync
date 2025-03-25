@@ -330,6 +330,7 @@ class ApprovalCommentsModel(SqlAlchemyBase):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     request_status_id: Mapped[int] = mapped_column(ForeignKey('request_status.id'))
     comment: Mapped[str]
+    created_date: Mapped[current_date]
 
     # BACK POPULATE
     status: Mapped['RequestStatusModel'] = relationship(lazy='selectin')
@@ -344,4 +345,5 @@ class ApprovalCommentsModel(SqlAlchemyBase):
             'request_status_id': self.request_status_id,
             'comment': self.comment,
             'status': self.status.to_dict(),
+            'created_date': self.created_date
         }

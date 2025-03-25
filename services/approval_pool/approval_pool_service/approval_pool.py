@@ -2,11 +2,12 @@ import httpx
 
 
 class ApprovalPool:
-    def __init__(self,  request_id, user_id, request_status_id, comment, status=None, id=None):
+    def __init__(self,  request_id, user_id, request_status_id, comment, created_date, status=None, id=None):
         self.id = id
         self.request_id = request_id
         self.user_id = user_id
         self.request_status_id = request_status_id
+        self.created_date = created_date
         self.comment = comment
         self.status = status
 
@@ -30,6 +31,7 @@ class ApprovalPool:
             "request_id": self.request_id,
             "user_id": self.user_id,
             "request_status_id": self.request_status_id,
-            "comment": self.comment
+            "comment": self.comment,
+            "created_date": self.created_date,
         }
 
