@@ -28,8 +28,8 @@ class RequestRepository:
 
     def add(self, request_):
         created = self.session.scalar(
-            insert(RequestMainModel).returning(RequestMainModel.id)
-                ,request_
+            insert(RequestMainModel).returning(RequestMainModel.id),
+            request_
         )
 
         print(request_ | {"id": created}, "<-- request_schema")
@@ -245,15 +245,17 @@ class RequestRepository:
                   .values(request_payload)
         )
 
-        self.session.execute(
-            update(CarModel),
-            [car for car in cars_payload]
-        )
+        if visitors_payload:
+            self.session.execute(
+                update(VisitorModel),
+                [visitor for visitor in visitors_payload]
+            )
 
-        self.session.execute(
-            update(VisitorModel),
-            [visitor for visitor in visitors_payload]
-        )
+        if cars_payload:
+            self.session.execute(
+                update(CarModel),
+                [car for car in cars_payload]
+            )
 
         return Request(**request_payload)
 
