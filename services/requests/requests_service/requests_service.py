@@ -29,12 +29,13 @@ class RequestsService:
     def create_files(self, files_):
         return self.request_repository.add_files(files_)
 
-    def update_request(self, id_, request_, visitors_, cars_):
-        request = self.request_repository.get(id_)
-        if not request:
-            raise RequestNotFoundException("Request not found. Заявка не найдена")
+    def update_request(self, request_, visitors_, cars_):
+        if request_:
+            request = self.request_repository.get(request_['id'])
+            if not request:
+                raise RequestNotFoundException("Request not found. Заявка не найдена")
 
-        return self.request_repository.update(id_, request_, visitors_, cars_)
+        return self.request_repository.update(request_, visitors_, cars_)
 
     def get_request_types(self):
         types = self.request_repository.get_all_types()
@@ -55,8 +56,17 @@ class RequestsService:
     def get_car(self, car_id):
         return self.request_repository.get_car(car_id)
 
+    def get_cars_with_ids(self, list_ids):
+        return self.request_repository.get_cars_with_ids(list_ids)
+
+    def get_cars_on_territory(self):
+        return self.request_repository.get_cars_on_territory()
+
     def get_visitor(self, visitor_id):
         return self.request_repository.get_visitor(visitor_id)
+
+    def get_visitors_with_ids(self, list_ids):
+        return self.request_repository.get_visitors_with_ids(list_ids)
 
     def initialize_request_types(self):
         return self.request_repository.initialize_req_types()

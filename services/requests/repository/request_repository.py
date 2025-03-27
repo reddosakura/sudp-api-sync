@@ -32,7 +32,6 @@ class RequestRepository:
             request_
         )
 
-        print(request_ | {"id": created}, "<-- request_schema")
         mapping = request_ | {"id": created}
 
         return Request(**mapping)
@@ -47,11 +46,12 @@ class RequestRepository:
         return [Visitor(**visitor) for visitor in visitors_]
 
     def add_cars(self, cars_):
-        self.session.execute(
-            insert(CarModel),
+        created = self.session.scalar(
+            insert(CarModel).returning(CarModel.id),
             cars_,
         )
-        return [Car(**car) for car in cars_]
+
+        return [Car(**dict(car | {"id": created})) for car in cars_]
 
     def add_files(self, files_):
         self.session.execute(
@@ -229,7 +229,21 @@ class RequestRepository:
             select(CarModel).where(CarModel.id == car_id)
         )).scalar()
 
-        return Car(**result)
+        return Car(**result.to_dict())
+
+    def get_cars_with_ids(self, list_ids):
+        results = (self.session.execute(
+            select(CarModel).where(CarModel.id.in_(list_ids))
+        )).scalars()
+
+        return [Car(**result.to_dict()) for result in results]
+
+    def get_cars_on_territory(self):
+        results = (self.session.execute(
+            select(CarModel).where(CarModel.on_territory == True)
+        )).scalars()
+
+        return [Car(**result.to_dict()) for result in results]
 
     def get_visitor(self, visitor_id):
         result = (self.session.execute(
@@ -238,12 +252,20 @@ class RequestRepository:
 
         return Visitor(**result.to_dict())
 
-    def update(self, id_, request_payload, visitors_payload, cars_payload):
-        self.session.execute(
-            update(RequestMainModel)
-                  .where(RequestMainModel.id == id_)
-                  .values(request_payload)
-        )
+    def get_visitors_with_ids(self, list_ids):
+        results = (self.session.execute(
+            select(VisitorModel).where(VisitorModel.id.in_(list_ids))
+        )).scalars()
+
+        return [Visitor(**result.to_dict()) for result in results]
+
+    def update(self, request_payload, visitors_payload, cars_payload):
+        if request_payload:
+            self.session.execute(
+                update(RequestMainModel)
+                      .where(RequestMainModel.id == request_payload['id'])
+                      .values(request_payload)
+            )
 
         if visitors_payload:
             self.session.execute(
@@ -256,8 +278,13 @@ class RequestRepository:
                 update(CarModel),
                 [car for car in cars_payload]
             )
-#
-        return Request(**request_payload)
+
+        if request_payload:
+            return Request(**request_payload)
+        elif visitors_payload:
+            [Visitor(**visitor) for visitor in visitors_payload]
+        elif cars_payload:
+            [Car(**car) for car in cars_payload]
 
     def add_visitor_to_request(self, visitors_payload):
         self.session.execute(

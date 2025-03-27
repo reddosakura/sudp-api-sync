@@ -1,4 +1,3 @@
-
 import uuid
 from datetime import datetime, time
 from typing import List, Annotated
@@ -175,6 +174,7 @@ class CarModel(SqlAlchemyBase):
     request_id: Mapped[int] = mapped_column(ForeignKey('request_main.id'), nullable=True)
     visitor_id: Mapped[int] = mapped_column(ForeignKey('visitor.id'), nullable=True)
     is_deleted: Mapped[bool]
+    on_territory: Mapped[bool] = mapped_column(default=False)
     date_deleted: Mapped[datetime] = mapped_column(nullable=True)
     date_created: Mapped[current_date]
 
@@ -194,10 +194,11 @@ class CarModel(SqlAlchemyBase):
             'request_id': self.request_id,
             "visitor_id": self.visitor_id,
             "is_deleted": self.is_deleted,
+            "on_territory": self.on_territory,
             'date_deleted': self.date_deleted,
             'date_created': self.date_created,
             'driver': self.driver.to_dict() if self.driver else None,
-            'transport_type': self.transport_type.to_dict(),
+            'transport_type': self.transport_type.to_dict() if self.transport_type else None,
             # 'passages': self.passages,
         }
 

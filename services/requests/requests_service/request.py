@@ -59,12 +59,12 @@ class Visitor:
                  lastname,
                  name,
                  patronymic,
-                 request_id,
                  passed_status,
                  is_deleted,
-                 date_deleted,
-                 date_created,
-                 request_=None, id=None):
+                 request_id=None,
+                 date_deleted=None,
+                 date_created=None,
+                 request_=None, id=None, passages=None):
 
         self.id = id
         self.lastname = lastname
@@ -76,6 +76,7 @@ class Visitor:
         self.date_deleted = date_deleted
         self.date_created = date_created
         self.request_ = request_
+        self.passages = passages
 
     def to_dict(self):
         return {
@@ -110,13 +111,13 @@ class Car:
                  car_model,
                  passed_status,
                  type_id,
-                 request_id,
                  visitor_id,
                  is_deleted,
-                 date_deleted,
-                 date_created,
-                 visitor_=None, id=None,
-                 type_=None):
+                 on_territory,
+                 request_id=None,
+                 date_deleted=None,
+                 date_created=None,id=None,
+                 transport_type=None, driver=None):
         self.id = id
         self.govern_num = govern_num
         self.car_model = car_model
@@ -125,10 +126,11 @@ class Car:
         self.request_id = request_id
         self.visitor_id = visitor_id
         self.is_deleted = is_deleted
+        self.on_territory = on_territory
         self.date_deleted = date_deleted
         self.date_created = date_created
-        self.visitor_ = visitor_
-        self.type_ = type_
+        self.transport_type = transport_type
+        self.driver = driver
 
     def to_dict(self):
         return {
@@ -140,10 +142,11 @@ class Car:
             "request_id": self.request_id,
             "visitor_id": self.visitor_id,
             "is_deleted": self.is_deleted,
+            "on_territory": self.on_territory,
             "date_deleted": self.date_deleted,
             "date_created": self.date_created,
-            "visitor_": self.visitor_.to_dcit() if self.visitor_ else None,
-            "transport_type": self.type_.to_dict() if self.type_ else None,
+            "driver": self.driver if self.driver else None,
+            "transport_type": self.transport_type if self.transport_type else None,
         }
 
 

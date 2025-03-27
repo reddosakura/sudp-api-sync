@@ -19,7 +19,8 @@ from .schemas import (
     RequestFullCreationSchema,
     CarSchema,
     VisitorSchema, VisitorBaseSchema, CarBaseSchema, FileSchema, RequestStatusSchema, ListCarTypes, ListPassmodes,
-    RequestBaseSchema, RequestFullUpdateSchema, FileBaseSchema, RequestCreatedSchema
+    RequestBaseSchema, RequestFullUpdateSchema, FileBaseSchema, RequestCreatedSchema, ListVisitorsUpdateSchema, ListIds,
+    ListCarsUpdateSchema
 )
 
 router = APIRouter(
@@ -192,6 +193,16 @@ def get_car(car_id: uuid.UUID):
     return result.to_dict()
 
 
+@router.get("/request/cars/on_territory", response_model=List[CarSchema], tags=["Получение автотранспорта на территории"])
+def get_cars_on_territory():
+    with DatabaseUnit() as unit:
+        with unit.session.begin():
+            repo = RequestRepository(unit.session)
+            request_service = RequestsService(repo)
+            results = request_service.get_cars_on_territory()
+    return [result.to_dict() for result in results]
+
+
 @router.get("/request/visitor/{visitor_id}", response_model=VisitorSchema, tags=["Получение посетителя по ID"])
 def get_visitor(visitor_id: uuid.UUID):
     with DatabaseUnit() as unit:
@@ -200,6 +211,29 @@ def get_visitor(visitor_id: uuid.UUID):
             request_service = RequestsService(repo)
             result = request_service.get_visitor(visitor_id)
     return result.to_dict()
+
+
+@router.post("/request/visitors/ids", response_model=ListVisitorsUpdateSchema, tags=["Получение посетителей по списку ID"])
+def get_visitors_for_update(payload: ListIds):
+    with DatabaseUnit() as unit:
+        with unit.session.begin():
+            repo = RequestRepository(unit.session)
+            request_service = RequestsService(repo)
+            results = request_service.get_visitors_with_ids(payload.ids)
+    return {
+        "visitors": [result.to_dict() for result in results]
+    }
+
+@router.post("/request/cars/ids", response_model=ListCarsUpdateSchema, tags=["Получение автотранспорта по списку ID"])
+def get_cars_for_update(payload: ListIds):
+    with DatabaseUnit() as unit:
+        with unit.session.begin():
+            repo = RequestRepository(unit.session)
+            request_service = RequestsService(repo)
+            results = request_service.get_cars_with_ids(payload.ids)
+    return {
+        "cars": [result.to_dict() for result in results]
+    }
 
 
 @router.post("/request/create", response_model=RequestCreatedSchema, tags=["Создание заявок"])
@@ -225,7 +259,7 @@ def create_visitors(payload: List[VisitorBaseSchema]):
     return result
 
 
-@router.post("/request/create/cars", response_model=List[CarBaseSchema], tags=["Создание автотранспорта"])
+@router.post("/request/create/cars", response_model=List[CarSchema], tags=["Создание автотранспорта"])
 def create_cars(payload: List[CarBaseSchema]):
     with DatabaseUnit() as unit:
         with unit.session.begin():
@@ -248,11 +282,11 @@ def create_request(payload: List[FileBaseSchema]):
 
     return result
 
-@router.put("/request/update/{request_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Редактирование заявок"])
-def update_request(request_id: int, payload: RequestFullUpdateSchema):
+@router.put("/request/update", status_code=status.HTTP_204_NO_CONTENT, tags=["Редактирование заявок"])
+def update_request(payload: RequestFullUpdateSchema):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
             request_service = RequestsService(repo)
-            request_service.update_request(request_id, **payload.model_dump())
+            request_service.update_request(**payload.model_dump())
             unit.commit()

@@ -13,7 +13,7 @@ class CarPassage:
         timeout = httpx.Timeout(10.0, read=None)
         with httpx.Client() as client:
             response = client.get(
-                f"http://requestapi/api/v3/request/car/{self.car_id}/",
+                f"http://requestapi/api/v3/request/car/{self.car_id}",
                 headers={
                     "accept": "application/json",
                     # "Authorization": f"Bearer {access_token}",

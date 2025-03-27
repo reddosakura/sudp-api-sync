@@ -68,7 +68,6 @@ class VisitorUpdateSchema(BaseModel):
 
     class Config:
         from_attributes = True
-#
 
 
 class VisitorSchema(VisitorBaseSchema):
@@ -91,9 +90,10 @@ class CarBaseSchema(BaseModel):
     car_model: str
     passed_status: bool
     type_id: uuid.UUID
-    request_id: int
+    request_id: Optional[int]
     visitor_id: Optional[uuid.UUID]
     is_deleted: bool
+    on_territory: bool
     date_deleted: Optional[datetime.datetime]
     date_created: Optional[datetime.datetime] = datetime.datetime.now()
 
@@ -107,9 +107,9 @@ class CarUpdateSchema(BaseModel):
     car_model: str
     passed_status: bool
     type_id: uuid.UUID
-    # request_id: int
     visitor_id: Optional[uuid.UUID]
     is_deleted: bool
+    on_territory: bool
 
     class Config:
         from_attributes = True
@@ -117,8 +117,8 @@ class CarUpdateSchema(BaseModel):
 
 class CarSchema(CarBaseSchema):
     id: uuid.UUID
-    visitor_: Optional[VisitorSchema] = None
-    transport_type: TransportTypeSchema
+    driver: Optional[VisitorSchema] = None
+    transport_type: Optional[TransportTypeSchema] = None
 
     class Config:
         from_attributes = True
@@ -129,13 +129,13 @@ class RequestSchema(BaseModel):
     id: int
     date_created: datetime.datetime
     type_id: uuid.UUID
-    contract_name: str
-    organization: str
+    contract_name: Optional[str]
+    organization: Optional[str]
     from_date: datetime.datetime
     to_date: datetime.datetime
     from_time: datetime.time
     to_time: datetime.time
-    comment: str
+    comment: Optional[str]
     request_status_id: uuid.UUID
     passmode_id: uuid.UUID
     creator: uuid.UUID
@@ -189,14 +189,13 @@ class RequestFullCreationSchema(BaseModel):
 
 class RequestFullUpdateSchema(BaseModel):
     # request_: RequestUpdateSchema
-    request_: RequestBaseSchema
+    request_: Optional[RequestCreatedSchema]
     visitors_: Optional[List[VisitorUpdateSchema]]
     cars_: Optional[List[CarUpdateSchema]]
     # files_: Optional[List[FileSchema]]
 
     class Config:
         from_attributes = True
-
 
 
 class ListRequest(BaseModel):
@@ -213,3 +212,20 @@ class ListCarTypes(BaseModel):
 
 class ListPassmodes(BaseModel):
     passage_modes: List[PassageModeSchema]
+
+class ListIds(BaseModel):
+    ids: List[uuid.UUID]
+
+
+class ListVisitorsUpdateSchema(BaseModel):
+    visitors: List[VisitorUpdateSchema]
+
+    class Config:
+        from_attributes = True
+
+
+class ListCarsUpdateSchema(BaseModel):
+    cars: List[CarUpdateSchema]
+
+    class Config:
+        from_attributes = True
