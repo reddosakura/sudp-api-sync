@@ -2,6 +2,7 @@ import datetime
 from pprint import pprint
 from typing import List
 
+import pytz
 from sqlalchemy import (
     select,
     insert,
@@ -10,7 +11,7 @@ from sqlalchemy import (
     update
 )
 
-from .enums import RequestStatusEnum
+from .enums import RequestStatusEnum, PassmodesEnum
 from .models import (
     RequestMainModel,
     VisitorModel,
@@ -151,10 +152,28 @@ class RequestRepository:
             query = select(RequestMainModel).where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate))
                                                & sql.func.date(RequestMainModel.to_date).between(fdate, tdate))
         if monitoring:
-            query = select(RequestMainModel).join(RequestMainModel.status).where((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
-                                               & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
-                                               | (RequestMainModel.from_date > datetime.datetime.now().today())
-                                               ).where((RequestStatusModel.name == RequestStatusEnum.ALLOWED.value))
+            query = (
+                select(RequestMainModel)
+                    .join(RequestMainModel.status)
+                    .join(RequestMainModel.passmode)
+                    .where(
+                        (datetime.datetime.now().date().today() >= RequestMainModel.from_date)
+                        & ((RequestMainModel.to_date >= datetime.datetime.now().date().today())
+                        | (RequestMainModel.from_date > datetime.datetime.now().today()))
+                    )
+                    .where(
+                        (datetime.datetime.now(pytz.timezone("Europe/Moscow")).time() >= RequestMainModel.from_time)
+                        & (RequestMainModel.to_time > datetime.datetime.now(pytz.timezone("Europe/Moscow")).time())
+                    )
+                    .where(
+                        ((PassageModeModel.name == PassmodesEnum.WEEKENDS_ONLY.value) & (datetime.datetime.now().date().weekday() in [5, 6]))
+                        | (PassageModeModel.name == PassmodesEnum.ALLDAYS.value)
+                        | ((PassageModeModel.name == PassmodesEnum.WEEKDAYS_ONLY.value) & (datetime.datetime.now().date().weekday() < 5))
+                    )
+                    .where(
+                        (RequestStatusModel.name == RequestStatusEnum.ALLOWED.value)
+                    )
+             )
         if is_consideration:
             query = select(RequestMainModel).join(RequestMainModel.status).where(RequestStatusModel.name == RequestStatusEnum.CONSIDERATION.value)
 

@@ -20,6 +20,12 @@ class RequestStatusEnum(Enum):
     PASSAPPROVAL = "Прошла согласование"
     UNPASSAPPROVAL = "Не прошла согласование"
 
+
+class PassmodesEnum(Enum):
+    ALLDAYS = "По всем дням"
+    WEEKDAYS_ONLY = "Только по будням"
+    WEEKENDS_ONLY = "Только по выходным"
+
 #
 # class PassageReportsMode(str, Enum):
 #     CARS = "Автомобили"

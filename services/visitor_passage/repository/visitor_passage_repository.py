@@ -1,4 +1,5 @@
-from sqlalchemy import insert, select
+from dns.e164 import query
+from sqlalchemy import insert, select, cast, Date, Time
 
 from visitor_passage.visitor_passage_service.visitor_passage import VisitorPassage
 from visitor_passage.visitor_passage_service.exceptions import VisitorPassageNotFound
@@ -28,26 +29,49 @@ class VisitorPassageRepository:
         return result.to_dict()
 
 
-    def list(self, fdate, tdate):
-        query = select(VisitorPassageModel).where(VisitorPassageModel.pass_date.between(fdate, tdate))
-        results = (self.session.execute(query)).scalars()
-        return [result.to_dict() for result in results]
+    def list(self, fdate, tdate, ftime, ttime):
+        query_text = (
+            select(VisitorPassageModel)
+                 .where(
+                    (cast(VisitorPassageModel.pass_date, Date).between(fdate, tdate))
+                    | ((cast(VisitorPassageModel.pass_date, Date) == tdate) & (cast(VisitorPassageModel.pass_date, Date) == fdate))
+                )
+                .where(
+                    cast(VisitorPassageModel.pass_date, Time).between(ftime, ttime)
+                )
+        )
+        results = (self.session.execute(query_text)).scalars()
+        return [VisitorPassage(**result.to_dict()) for result in results]
 
 
-    def search(self, value, fdate, tdate):
-        results = (self.session.execute(
+    def search(self, value, fdate, tdate, ftime, ttime):
+
+        query_text = (
             select(VisitorPassageModel)
                 .join(VisitorPassageModel.visitor)
                 .where(
-                    (((VisitorModel.lastname.like(f'%{value.upper()}%')) |
-                     ((VisitorModel.lastname.in_(value.upper().split())) &
+                    (VisitorModel.lastname.like(f'%{value.upper()}%')) |
+                    (VisitorModel.name.like(f'%{value.upper()}%')) |
+                    (VisitorModel.patronymic.like(f'%{value.upper()}%')) |
+                    (((VisitorModel.lastname.in_(value.upper().split())) &
                      (VisitorModel.name.in_(value.upper().split())) &
-                     (VisitorModel.patronymic.in_(value.upper().split()))))) &
-                    VisitorPassageModel.pass_date.between(fdate, tdate))
-                )).scalars()
+                     (VisitorModel.patronymic.in_(value.upper().split()))))
+                )
+                .where(
+                    (cast(VisitorPassageModel.pass_date, Date).between(fdate, tdate))
+                    | ((cast(VisitorPassageModel.pass_date, Date) == tdate)
+                        & (cast(VisitorPassageModel.pass_date, Date) == fdate))
+                )
+                .where(
+                    cast(VisitorPassageModel.pass_date, Time).between(ftime, ttime)
+                )
+            )
+
+        results = (self.session.execute(query_text).scalars())
+
+        # print(list(results), "<-- sql results")
+
         if not results:
             raise VisitorPassageNotFound("VisitorPassage not found. Отметки о посетителя не найдены")
 
-        return [result.to_dict() for result in results]
-
-
+        return [VisitorPassage(**result.to_dict()) for result in results]

@@ -1,5 +1,7 @@
-from sqlalchemy import insert, select
+import datetime
 
+from sqlalchemy import insert, select, cast, Time, Date
+from sqlalchemy.sql import extract
 from car_passage.car_passage_service.car_passage import CarPassage
 from car_passage.car_passage_service.exceptions import CarPassageNotFound
 from car_passage.repository.models import CarPassageModel, CarModel
@@ -27,24 +29,42 @@ class CarPassageRepository:
         return result.to_dict()
 
 
-    def list(self, fdate, tdate):
-        query = select(CarPassageModel).where(CarPassageModel.pass_date.between(fdate, tdate))
+    def list(self, fdate, tdate, ftime, ttime):
+        query = (
+            select(CarPassageModel)
+                 .where(
+                    (cast(CarPassageModel.pass_date, Date).between(fdate, tdate))
+                    | ((cast(CarPassageModel.pass_date, Date) == tdate) & (cast(CarPassageModel.pass_date, Date) == fdate))
+                )
+                .where(
+                    cast(CarPassageModel.pass_date, Time).between(ftime, ttime)
+                )
+        )
         results = (self.session.execute(query)).scalars()
-        return [result.to_dict() for result in results]
+        if not results:
+            raise CarPassageNotFound("CarPassage not found. Отметки о проезде не найдены")
+        return [CarPassage(**result.to_dict()) for result in results]
 
 
-    def search(self, value, fdate, tdate):
+    def search(self, value, fdate, tdate, ftime, ttime):
         results = (self.session.execute(
             select(CarPassageModel)
                 .join(CarPassageModel.car)
                 .where(
                     ((CarModel.govern_num.like(f'%{value.upper()}%')) |
-                    (CarModel.car_model.like(f'%{value.upper()}%'))) &
-                    CarPassageModel.pass_date.between(fdate, tdate))
+                    (CarModel.car_model.like(f'%{value.upper()}%')))
+                )
+                .where(
+                    (cast(CarPassageModel.pass_date, Date).between(fdate, tdate))
+                    | ((cast(CarPassageModel.pass_date, Date) == tdate) & (cast(CarPassageModel.pass_date, Date) == fdate))
+                )
+                .where(
+                    cast(CarPassageModel.pass_date, Time).between(ftime, ttime)
+                )
                 )).scalars()
         if not results:
             raise CarPassageNotFound("CarPassage not found. Отметки о проезде не найдены")
 
-        return [result.to_dict() for result in results]
+        return [CarPassage(**result.to_dict())for result in results]
 
 

@@ -1,6 +1,9 @@
 import uuid
 from datetime import datetime, time
 from typing import List, Annotated
+
+import pytz
+import sqlalchemy
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import (
     Mapped,
@@ -13,7 +16,7 @@ class SqlAlchemyBase(DeclarativeBase):
     pass
 
 
-current_date = Annotated[datetime, mapped_column(default=datetime.now)]
+current_date = Annotated[datetime, mapped_column(default=datetime.now(tz=pytz.timezone("Europe/Moscow")))]
 primary_key = Annotated[uuid.UUID, mapped_column(primary_key=True, default=uuid.uuid4)]
 
 class HolidayDatesModel(SqlAlchemyBase):
@@ -216,6 +219,7 @@ class CarPassageModel(SqlAlchemyBase):
     def to_dict(self):
         return {
             'id': self.id,
+            'pass_date': self.pass_date,
             'car_id': self.car_id,
             'status': self.status,
             'car': self.car.to_dict(),

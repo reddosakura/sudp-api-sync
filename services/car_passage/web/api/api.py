@@ -1,5 +1,6 @@
 import datetime
-from typing import List
+from datetime import time
+from typing import List, Optional
 from fastapi import APIRouter
 from starlette import status
 
@@ -22,17 +23,36 @@ def get_car_passage(car_passage_id: int):
             car_passage_service = CarPassageService(repo)
             result = car_passage_service.get_car_passage(car_passage_id)
 
-    return result.to_dict()
+    return result
 
 
 @router.get("/passage/search", response_model=ListCarPassageSchema)
-def search_car_passage(value: str, fdate: datetime.datetime = datetime.datetime.now().date(),
-                             tdate: datetime.datetime = datetime.datetime.now().date()):
+def search_car_passage(value: Optional[str],
+                       ftime: time,
+                       ttime: time,
+                       fdate: datetime.datetime = datetime.datetime.now().date(),
+                       tdate: datetime.datetime = datetime.datetime.now().date()):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = CarPassageRepository(unit.session)
             car_passage_service = CarPassageService(repo)
-            results = car_passage_service.search_car_passage(value, tdate, fdate)
+            results = car_passage_service.search_car_passage(value, tdate, fdate, ftime, ttime)
+    return {
+        "c_passages": [result.to_dict() for result in results],
+    }
+
+@router.get("/passage/list", response_model=ListCarPassageSchema)
+def list_car_passage(
+        ftime: time,
+        ttime: time,
+        fdate: datetime.datetime = datetime.datetime.now().date(),
+        tdate: datetime.datetime = datetime.datetime.now().date(),
+):
+    with DatabaseUnit() as unit:
+        with unit.session.begin():
+            repo = CarPassageRepository(unit.session)
+            car_passage_service = CarPassageService(repo)
+            results = car_passage_service.get_car_passage_list(fdate, tdate, ftime, ttime)
     return {
         "c_passages": [result.to_dict() for result in results],
     }

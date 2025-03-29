@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class CarPassageBaseSchema(BaseModel):
-    pass_date: Optional[datetime.datetime] = datetime.datetime.now()
+    pass_date: Optional[datetime.datetime]
     status: bool
     car_id: uuid.UUID
 
@@ -22,5 +22,5 @@ class CarPassageSchema(CarPassageBaseSchema):
         from_attributes = True
 
 
-class ListCarPassageSchema(CarPassageBaseSchema):
-    c_passages: list[CarPassageBaseSchema]
+class ListCarPassageSchema(BaseModel):
+    c_passages: Optional[list[CarPassageSchema]]

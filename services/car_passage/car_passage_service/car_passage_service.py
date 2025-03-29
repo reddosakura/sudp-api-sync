@@ -11,5 +11,8 @@ class CarPassageService:
     def get_car_passage(self, car_passage_id):
         return self.car_passage_repository.get(car_passage_id)
 
-    def search_car_passage(self, value, fdate, tdate):
-        return self.car_passage_repository.search(value, fdate, tdate)
+    def get_car_passage_list(self, fdate, tdate, ftime, ttime):
+        return self.car_passage_repository.list(fdate, tdate, ftime, ttime)
+
+    def search_car_passage(self, value, fdate, tdate, ftime, ttime):
+        return self.car_passage_repository.search(value, fdate, tdate, ftime, ttime)

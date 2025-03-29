@@ -1,4 +1,5 @@
 import datetime
+from datetime import time
 import sys
 from pprint import pprint
 from typing import List
@@ -26,13 +27,35 @@ def get_visitor_passage(visitor_passage_id: int):
 
 
 @router.get("/passage/search", response_model=ListVisitorPassageSchema)
-def search_visitor_passage(value: str, fdate: datetime.datetime = datetime.datetime.now().date(),
-                             tdate: datetime.datetime = datetime.datetime.now().date()):
+def search_visitor_passage(value: str,
+                           ftime: time,
+                           ttime: time,
+                           fdate: datetime.datetime = datetime.datetime.now().date(),
+                           tdate: datetime.datetime = datetime.datetime.now().date()):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = VisitorPassageRepository(unit.session)
             visitor_passage_service = VisitorPassageService(repo)
-            results = visitor_passage_service.search_visitor_passage(value, tdate, fdate)
+            results = visitor_passage_service.search_visitor_passage(value, fdate, tdate, ftime, ttime)
+            returned_response = [result.to_dict() for result in results]
+    print(returned_response, "<-- api results")
+    return {
+        "v_passages": returned_response,
+    }
+
+
+@router.get("/passage/list", response_model=ListVisitorPassageSchema)
+def list_visitor_passage(
+        ftime: time,
+        ttime: time,
+        fdate: datetime.datetime = datetime.datetime.now().date(),
+        tdate: datetime.datetime = datetime.datetime.now().date(),
+):
+    with DatabaseUnit() as unit:
+        with unit.session.begin():
+            repo = VisitorPassageRepository(unit.session)
+            visitor_passage_service = VisitorPassageService(repo)
+            results = visitor_passage_service.get_list_visitor_passage(fdate, tdate, ftime, ttime)
     return {
         "v_passages": [result.to_dict() for result in results],
     }

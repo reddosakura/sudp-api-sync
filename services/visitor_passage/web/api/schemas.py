@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class VisitorPassageBaseSchema(BaseModel):
-    pass_date: Optional[datetime.datetime] = datetime.datetime.now()
+    pass_date: Optional[datetime.datetime]
     status: bool
     visitor_id: uuid.UUID
 
@@ -22,5 +22,5 @@ class VisitorPassageSchema(VisitorPassageBaseSchema):
         from_attributes = True
 
 
-class ListVisitorPassageSchema(VisitorPassageBaseSchema):
-    v_passages: list[VisitorPassageBaseSchema]
+class ListVisitorPassageSchema(BaseModel):
+    v_passages: list[VisitorPassageSchema]

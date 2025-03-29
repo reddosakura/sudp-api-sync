@@ -2,7 +2,7 @@ import httpx
 
 
 class CarPassage:
-    def __init__(self, pass_date, status, car_id, car=None, id=None):
+    def __init__(self, pass_date, status, car_id=None, car=None, id=None):
         self.id = id
         self.pass_date = pass_date
         self.status = status
