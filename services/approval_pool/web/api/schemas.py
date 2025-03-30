@@ -1,5 +1,6 @@
 import uuid
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -18,6 +19,8 @@ class ApprovalBaseSchema(BaseModel):
 
 class ApprovalSchema(ApprovalBaseSchema):
     id: uuid.UUID
+    userobj: Optional[dict]
+    status: Optional[dict]
 
     class Config:
         from_attributes = True

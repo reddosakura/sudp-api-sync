@@ -17,10 +17,10 @@ from werkzeug.security import generate_password_hash
 #     print(i)
 
 
-A = datetime.strptime("05:00:00", "%H:%M:%S").time()
-B = datetime.strptime("18:00:00", "%H:%M:%S").time()
+A = datetime.strptime("2025-03-30", "%Y-%m-%d")
+B = datetime.strptime("2025-03-30", "%Y-%m-%d")
 
-print(datetime.now(pytz.timezone("Europe/Moscow")).time().minute)
-print((datetime.now().time() >= A)
-      & (B > datetime.now(pytz.timezone("Europe/Moscow")).time()))
-print(A.hour)
+A1 = datetime.strptime("2025-03-30", "%Y-%m-%d")
+B2 = datetime.strptime("2025-03-30", "%Y-%m-%d")
+
+print((A <= A1) & (B2 <= B))

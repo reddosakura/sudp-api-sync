@@ -206,6 +206,23 @@ class Request:
         return response.json()
 
 
+    def get_approval(self):
+        url = f"http://apprpoolapi/api/v3/approval/request/{self.id}"
+        print(url)
+        with httpx.Client() as client:
+            response = client.get(
+                url,
+                headers={
+                    "accept": "application/json",
+                    # "Authorization": f"Bearer {access_token}",
+                },
+                timeout=self.timeout
+            )
+            if response.status_code != 200:
+                return {}
+        return response.json()
+
+
 
     def to_dict(self):
         return {
@@ -229,7 +246,8 @@ class Request:
             "type": self.type_ if self.type_ else None,
             "status": self.status_.to_dict() if self.status_ else None,
             "passmode": self.passmode_.to_dict() if self.passmode_ else None,
-            "creatorobj": self.get_creator()
+            "creatorobj": self.get_creator(),
+            "approval": self.get_approval()
             # "files": [f for f in self.files_] if self.files_ else None,
             # "visitors": [v.to_dict() for v in self.visitors_] if self.visitors_ else None,
             # "cars": [c.to_dict() for c in self.cars_] if self.cars_ else None,

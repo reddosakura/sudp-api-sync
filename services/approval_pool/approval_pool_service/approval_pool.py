@@ -15,7 +15,20 @@ class ApprovalPool:
         timeout = httpx.Timeout(10.0, read=None)
         with httpx.Client() as client:
             response = client.get(
-                f"http://userapi/api/v3/users/{self.user_id}/",
+                f"http://userapi/api/v3/users/{self.user_id}",
+                headers={
+                    "accept": "application/json",
+                    # "Authorization": f"Bearer {access_token}",
+                },
+                timeout=timeout
+            )
+        return response.json()
+
+    def get_status(self):
+        timeout = httpx.Timeout(10.0, read=None)
+        with httpx.Client() as client:
+            response = client.get(
+                f"http://userapi/api/v3/request/status/id/{self.user_id}",
                 headers={
                     "accept": "application/json",
                     # "Authorization": f"Bearer {access_token}",
@@ -33,5 +46,7 @@ class ApprovalPool:
             "request_status_id": self.request_status_id,
             "comment": self.comment,
             "created_date": self.created_date,
+            "userobj": self.get_user(),
+            "status": self.status if self.status else None,
         }
 

@@ -147,6 +147,7 @@ class RequestSchema(BaseModel):
     status: RequestStatusSchema
     passmode: PassageModeSchema
     creatorobj: dict
+    approval: Optional[dict]
 
     class Config:
         from_attributes = True

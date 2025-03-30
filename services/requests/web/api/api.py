@@ -171,6 +171,16 @@ def get_request_status(name: str):
     return result
 
 
+@router.get("/request/status/id/{id}", response_model=RequestStatusSchema, tags=["Получение статуса заявки по названию"])
+def get_request_status_by_id(id: uuid.UUID):
+    with DatabaseUnit() as unit:
+        with unit.session.begin():
+            repo = RequestRepository(unit.session)
+            request_service = RequestsService(repo)
+            result = request_service.get_request_status_by_id(id)
+    return result
+
+
 @router.get("/req/passmodes", response_model=ListPassmodes, tags=["Получение режимов прохода"])
 def get_passmodes():
     with DatabaseUnit() as unit:

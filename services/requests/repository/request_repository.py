@@ -145,9 +145,8 @@ class RequestRepository:
                     is_approval: bool = False,
                     is_admin: bool = False,
                     creator: str = None):
-        query = select(RequestMainModel).where((fdate >= RequestMainModel.from_date)
-                                           & (RequestMainModel.to_date >= tdate)
-                                           | (RequestMainModel.from_date > fdate))
+        query = select(RequestMainModel).where((fdate <= RequestMainModel.from_date)
+                                           & (RequestMainModel.to_date <= tdate))
         if is_filtered:
             query = select(RequestMainModel).where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate))
                                                & sql.func.date(RequestMainModel.to_date).between(fdate, tdate))
@@ -228,6 +227,17 @@ class RequestRepository:
         result = (self.session.execute(
             select(RequestStatusModel)
                 .where(RequestStatusModel.name == name)
+        )).scalar()
+
+        if not result:
+            raise Exception("Request status not found")
+
+        return RequestStatus(**result.to_dict())
+
+    def get_status_by_id(self, id):
+        result = (self.session.execute(
+            select(RequestStatusModel)
+                .where(RequestStatusModel.id == id)
         )).scalar()
 
         if not result:

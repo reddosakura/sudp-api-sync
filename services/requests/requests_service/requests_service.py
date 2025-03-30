@@ -49,6 +49,8 @@ class RequestsService:
 
     def get_request_status_by_name(self, name):
         return self.request_repository.get_status_by_name(name)
+    def get_request_status_by_id(self, id):
+        return self.request_repository.get_status_by_name(id)
 
     def get_transport_types(self):
         return self.request_repository.get_all_transport_types()
