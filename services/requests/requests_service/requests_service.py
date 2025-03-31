@@ -14,8 +14,8 @@ class RequestsService:
     def list_requests(self, monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator_id):
         return self.request_repository.list(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator_id)
 
-    def search_request(self, value, monitoring, is_filtered, is_reports, creator_id, fdate, tdate):
-        return self.request_repository.search(value, monitoring, is_filtered, is_reports, creator_id, fdate, tdate)
+    def search_request(self, value, status, is_reports, creator, fdate, tdate):
+        return self.request_repository.search(value, status, is_reports, creator, fdate, tdate)
 
     def create_request(self, request_):
         return self.request_repository.add(request_)

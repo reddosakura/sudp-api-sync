@@ -282,7 +282,7 @@ class VisitorModel(SqlAlchemyBase):
     id: Mapped[primary_key]
     lastname: Mapped[str] = mapped_column(index=True)
     name: Mapped[str] = mapped_column(index=True)
-    patronymic: Mapped[str] = mapped_column(index=True)
+    patronymic: Mapped[str] = mapped_column(index=True, nullable=True)
     request_id: Mapped[int] = mapped_column(ForeignKey('request_main.id'))
     passed_status: Mapped[bool]
     is_deleted: Mapped[bool]

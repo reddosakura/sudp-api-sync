@@ -1,6 +1,6 @@
 import datetime
 from pprint import pprint
-from typing import List
+from typing import List, Optional
 
 import pytz
 from sqlalchemy import (
@@ -17,10 +17,11 @@ from .models import (
     VisitorModel,
     CarModel,
     FileModel, RequestTypeModel,
-    PassageModeModel, RequestStatusModel, TransportTypeModel
+    PassageModeModel, RequestStatusModel, TransportTypeModel, UserModel
 )
 from ..requests_service.exceptions import RequestNotFoundException
 from ..requests_service.request import Request, RequestType, Car, Visitor, PassageMode, TransportType, File, RequestStatus
+
 
 
 class RequestRepository:
@@ -69,28 +70,74 @@ class RequestRepository:
         return Request(**result.to_dict())
 
 
-    def search(self, value, monitoring: bool = False,
-                        is_filtered: bool = False,
+    def search(self, value,
+                        status: Optional[str],
                         is_reports: bool = False,
                         creator: str = None,
                         fdate: datetime.datetime = datetime.datetime.now().date(),
                         tdate: datetime.datetime = datetime.datetime.now().date()) -> List[Request]:
 
-        query_v = select(RequestMainModel).join(RequestMainModel.visitors).where(
-            (VisitorModel.lastname.like(f'%{value.upper()}%')) |
-            ((VisitorModel.lastname.in_(value.upper().split())) &
-             (VisitorModel.name.in_(value.upper().split())) &
-             (VisitorModel.patronymic.in_(value.upper().split()))) |
-            (RequestMainModel.organization.like(f'%{value}%')) |
-            (RequestMainModel.organization.in_(value.upper().split())) |
-            (RequestMainModel.organization.match(value.upper())) |
-            (RequestMainModel.contract_name.like(f'%{value}%'))
-        )
-        query_c = select(RequestMainModel).join(RequestMainModel.cars).where(
-            CarModel.govern_num.like(f'%{value.upper()}%'))
+
+
+        query = select(RequestMainModel).where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate.date()))
+                                        & sql.func.date(RequestMainModel.to_date).between(fdate, tdate.date()))
 
         if is_reports:
-            query_v = select(RequestMainModel).join(RequestMainModel.visitors).where(
+            if value:
+                query = (query
+                            .join(RequestMainModel.visitors)
+                            .join(RequestMainModel.cars)
+                            .join(RequestMainModel.creatorobj)
+                            .where(
+                                (VisitorModel.lastname.like(f'%{value.upper()}%')) |
+                                ((VisitorModel.lastname.in_(value.upper().split())) &
+                                 (VisitorModel.name.in_(value.upper().split())) &
+                                 (VisitorModel.patronymic.in_(value.upper().split()))) |
+                                (RequestMainModel.organization.like(f'%{value}%')) |
+                                (RequestMainModel.organization.in_(value.upper().split())) |
+                                (RequestMainModel.organization.match(value.upper())) |
+                                (RequestMainModel.contract_name.like(f'%{value}%')) |
+                                ((UserModel.lastname.like(f'%{value.title()}%') |
+                                  UserModel.name.like(f'%{value.title()}%') |
+                                  UserModel.patronymic.like(f'%{value.title()}%') |
+                                  (UserModel.lastname.in_(value.title().split())) |
+                                  (UserModel.name.in_(value.title().split())) |
+                                  (UserModel.patronymic.in_(value.title().split())))) |
+                                CarModel.govern_num.like(f'%{value.upper()}%')
+                            )
+                )
+                if status:
+                    query = query.join(RequestMainModel.status).where(RequestStatusModel.name == status)
+
+                query = query.distinct()
+                # query_c = select(RequestMainModel)
+                # query_c = query_c.where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate.date()))
+                #                         & sql.func.date(RequestMainModel.to_date).between(fdate.date(), tdate.date()))
+            else:
+                query = select(RequestMainModel).where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate))
+                                               & sql.func.date(RequestMainModel.to_date).between(fdate, tdate))
+
+            if status:
+                query = query.join(RequestMainModel.status).where(RequestStatusModel.name == status)
+                # query_c = query_v.where(RequestMainModel.status.name == status)
+
+        # if monitoring:
+        #     query_v = query_v.where(((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
+        #                              & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
+        #                              | (RequestMainModel.from_date > datetime.datetime.now().today()))
+        #                             & (RequestMainModel.status == RequestStatusEnum.ALLOWED.value)
+        #                             )
+        #
+        #     query_c = query_c.where(((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
+        #                              & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
+        #                              | (RequestMainModel.from_date > datetime.datetime.now().today()))
+        #                             & (RequestMainModel.status == RequestStatusEnum.ALLOWED.value))
+
+        if creator:
+            query = (select(RequestMainModel)
+            .join(RequestMainModel.visitors)
+            .join(RequestMainModel.cars)
+            .where(
                 (VisitorModel.lastname.like(f'%{value.upper()}%')) |
                 ((VisitorModel.lastname.in_(value.upper().split())) &
                  (VisitorModel.name.in_(value.upper().split())) &
@@ -99,37 +146,19 @@ class RequestRepository:
                 (RequestMainModel.organization.in_(value.upper().split())) |
                 (RequestMainModel.organization.match(value.upper())) |
                 (RequestMainModel.contract_name.like(f'%{value}%')) |
-                (RequestMainModel.creator.like(f'%{value.title()}%'))
+                CarModel.govern_num.like(f'%{value.upper()}%')
             )
-            query_c = select(RequestMainModel).join(RequestMainModel.cars).where(
-                CarModel.govern_num.like(f'%{value.upper()}%') |
-                (RequestMainModel.creator.like(f'%{value.title()}%')))
+            )
+            query = query.where(RequestMainModel.creator == creator)
 
-        if is_filtered:
-            query_v = query_v.where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate.date()))
-                                    & sql.func.date(RequestMainModel.to_date).between(fdate, tdate.date()))
-            query_c = query_c.where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate.date()))
-                                    & sql.func.date(RequestMainModel.to_date).between(fdate.date(), tdate.date()))
+            result = (self.session.execute(query)).scalars()
+            return [Request(**data.to_dict()) for data in result]
+            # query = query.where(RequestMainModel.creator == creator)
 
-        if monitoring:
-            query_v = query_v.where(((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
-                                     & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
-                                     | (RequestMainModel.from_date > datetime.datetime.now().today()))
-                                    & (RequestMainModel.status == RequestStatusEnum.ALLOWED.value)
-                                    )
+        # union_query = select(RequestMainModel).from_statement(union_all(query_v, query_c))
 
-            query_c = query_c.where(((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
-                                     & (RequestMainModel.to_date >= datetime.datetime.now().date().today())
-                                     | (RequestMainModel.from_date > datetime.datetime.now().today()))
-                                    & (RequestMainModel.status == RequestStatusEnum.ALLOWED.value))
-
-        if creator:
-            query_v = query_v.where(RequestMainModel.creator == creator)
-            query_c = query_c.where(RequestMainModel.creator == creator)
-
-        union_query = select(RequestMainModel).from_statement(union_all(query_v, query_c))
-
-        result = (self.session.execute(union_query)).scalars()
+        # result = (self.session.execute(union_query)).scalars()
+        result = (self.session.execute(query)).scalars()
 
         if not result:
             raise RequestNotFoundException("Request not found. Заявка не найдена")

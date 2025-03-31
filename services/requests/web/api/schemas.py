@@ -47,7 +47,7 @@ class FileSchema(FileBaseSchema):
 class VisitorBaseSchema(BaseModel):
     lastname: str
     name: str
-    patronymic: str
+    patronymic: Optional[str]
     request_id: int
     passed_status: bool
     is_deleted: bool
@@ -62,7 +62,7 @@ class VisitorUpdateSchema(BaseModel):
     id: uuid.UUID
     lastname: str
     name: str
-    patronymic: str
+    patronymic: Optional[str]
     passed_status: bool
     is_deleted: bool
 

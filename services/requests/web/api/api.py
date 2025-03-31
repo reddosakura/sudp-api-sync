@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter
 from starlette import status
@@ -105,17 +105,17 @@ def get_list_requests(monitoring: bool = False,
 
 
 @router.get("/request/search", response_model=ListRequest, tags=["Поиск заявок"])
-def get_search_request(value, monitoring: bool = False,
-                        is_filtered: bool = False,
+def get_search_request(value: Optional[str] = None,
+                        status: Optional[str] = None,
                         is_reports: bool = False,
-                        creator: str = None,
+                        creator: Optional[str] = None,
                         fdate: datetime.datetime = datetime.datetime.now().date(),
                         tdate: datetime.datetime = datetime.datetime.now().date()):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
             request_service = RequestsService(repo)
-            results = request_service.search_request(value, monitoring, is_filtered,
+            results = request_service.search_request(value, status,
                                                            is_reports, creator, fdate, tdate)
 
     value = [result.to_dict() for result in results]
@@ -259,6 +259,7 @@ def create_request(payload: RequestFullCreationSchema):
 
 @router.post("/request/create/visitors", response_model=List[VisitorBaseSchema], tags=["Создание посетителей"])
 def create_visitors(payload: List[VisitorBaseSchema]):
+    print(payload)
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
