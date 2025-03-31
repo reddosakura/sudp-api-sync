@@ -109,8 +109,8 @@ def get_search_request(value: Optional[str] = None,
                         status: Optional[str] = None,
                         is_reports: bool = False,
                         creator: Optional[str] = None,
-                        fdate: datetime.datetime = datetime.datetime.now().date(),
-                        tdate: datetime.datetime = datetime.datetime.now().date()):
+                        fdate: Optional[datetime.datetime] = None,
+                        tdate: Optional[datetime.datetime] = None):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
