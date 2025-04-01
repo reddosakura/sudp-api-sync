@@ -18,6 +18,7 @@ class UserBaseSchema(BaseModel):
     speciality: str
     logged_in: bool
     is_deleted: bool
+    login: str
 
     # is_deleted: bool
     # created_date: datetime.datetime = datetime.datetime.now()
