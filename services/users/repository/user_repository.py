@@ -41,9 +41,9 @@ class UserRepository:
 
 
     def list(self, _show_deleted: bool):
-        query = select(UserModel)
+        query = select(UserModel).where(UserModel.is_deleted == False)
         if _show_deleted:
-            query = query.where(UserModel.is_deleted == True)
+            query = select(UserModel)
         fetched_data = self.session.execute(query)
         return [User(**(data.to_dict())) for data in fetched_data.scalars()]
 

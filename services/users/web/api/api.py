@@ -66,6 +66,7 @@ def get_users(show_deleted: bool = False):
         with unit.session.begin():
             repo = UserRepository(unit.session)
             user_service = UsersService(repo)
+            print(show_deleted)
             results = user_service.get_users_list(_show_deleted=show_deleted)
 
     return {
