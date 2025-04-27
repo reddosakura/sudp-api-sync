@@ -1,5 +1,4 @@
 import datetime
-from pprint import pprint
 from typing import List, Optional
 
 import pytz
@@ -7,7 +6,6 @@ from sqlalchemy import (
     select,
     insert,
     sql,
-    union_all,
     update
 )
 
@@ -20,7 +18,7 @@ from .models import (
     PassageModeModel, RequestStatusModel, TransportTypeModel, UserModel
 )
 from ..requests_service.exceptions import RequestNotFoundException
-from ..requests_service.request import Request, RequestType, Car, Visitor, PassageMode, TransportType, File, RequestStatus
+from ..requests_service.request import Request, Car, Visitor, PassageMode, TransportType, File, RequestStatus
 
 
 

@@ -197,7 +197,6 @@ class Request:
                 url,
                 headers={
                     "accept": "application/json",
-                    # "Authorization": f"Bearer {access_token}",
                 },
                 timeout=self.timeout
             )

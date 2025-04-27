@@ -1,15 +1,9 @@
 import os
-import asyncio
-
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
 from ..repository.models import SqlAlchemyBase
 from sqlalchemy.orm import sessionmaker
 
-
 class DatabaseUnit:
-
     def __init__(self):
         __conn_str = (f'postgresql+psycopg2://postgres:'
                     f'{os.environ.get("DBPASSWORD")}@{os.environ.get("SERVER")}:'
@@ -30,10 +24,7 @@ class DatabaseUnit:
             autoflush=False
         )
 
-
-
     def initialize_tables(self):
-        # with self.__engine.begin():
         SqlAlchemyBase.metadata.create_all(self.__engine)
 
     def __enter__(self):
