@@ -89,12 +89,13 @@ def get_list_requests(monitoring: bool = False,
                     is_consideration: bool = False,
                     is_approval: bool = False,
                     is_admin: bool = False,
+                    is_archived: bool = False,
                     creator: str = None):
     with DatabaseUnit() as unit:
         with unit.session.begin():
             repo = RequestRepository(unit.session)
             request_service = RequestsService(repo)
-            results = request_service.list_requests(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator)
+            results = request_service.list_requests(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, is_archived, creator)
 
     value = [result.to_dict() for result in results]
     print(value, "<--- request_ list")
@@ -257,7 +258,7 @@ def create_request(payload: RequestFullCreationSchema):
 
     return result
 
-@router.post("/request/create/visitors", response_model=List[VisitorBaseSchema], tags=["Создание посетителей"])
+@router.post("/request/create/visitors", response_model=List[VisitorSchema], tags=["Создание посетителей"])
 def create_visitors(payload: List[VisitorBaseSchema]):
     print(payload)
     with DatabaseUnit() as unit:

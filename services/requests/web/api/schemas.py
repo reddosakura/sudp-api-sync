@@ -107,7 +107,7 @@ class CarUpdateSchema(BaseModel):
     car_model: str
     passed_status: bool
     type_id: uuid.UUID
-    visitor_id: Optional[uuid.UUID]
+    # visitor_id: Optional[uuid.UUID]
     is_deleted: bool
     on_territory: bool
 
@@ -193,7 +193,7 @@ class RequestFullUpdateSchema(BaseModel):
     request_: Optional[RequestCreatedSchema]
     visitors_: Optional[List[VisitorUpdateSchema]]
     cars_: Optional[List[CarUpdateSchema]]
-    # files_: Optional[List[FileSchema]]
+    files_: Optional[List[FileBaseSchema]]
 
     class Config:
         from_attributes = True

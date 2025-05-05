@@ -6,7 +6,7 @@ from sqlalchemy import (
     select,
     insert,
     sql,
-    update
+    update, delete
 )
 
 from .enums import RequestStatusEnum, PassmodesEnum
@@ -38,12 +38,17 @@ class RequestRepository:
 
 
     def add_visitors(self, visitors_):
-        self.session.execute(
-            insert(VisitorModel),
+        created = self.session.scalars(
+            insert(VisitorModel).returning(VisitorModel.id),
             visitors_,
         )
 
-        return [Visitor(**visitor) for visitor in visitors_]
+        list_uuids = list(created)
+        mappings = [visitor | {"id": list_uuids[i]} for i, visitor in enumerate(visitors_)]
+
+        print(mappings, "<-- mappings")
+
+        return [Visitor(**visitor) for visitor in mappings]
 
     def add_cars(self, cars_):
         created = self.session.scalar(
@@ -162,9 +167,17 @@ class RequestRepository:
                     is_consideration: bool = False,
                     is_approval: bool = False,
                     is_admin: bool = False,
+                    is_archived: bool = False,
                     creator: str = None):
-        query = select(RequestMainModel).where((fdate <= RequestMainModel.from_date)
-                                           & (RequestMainModel.to_date <= tdate))
+        # query = select(RequestMainModel).where((fdate <= RequestMainModel.from_date)
+        #                                    & (RequestMainModel.to_date <= tdate))
+
+        query = (select(RequestMainModel)
+                            .where((datetime.datetime.now().date().today() >= RequestMainModel.from_date)
+                                & ((RequestMainModel.to_date >= datetime.datetime.now().date().today())
+                                   | (RequestMainModel.from_date > datetime.datetime.now().today()))
+                            )
+                         .distinct().order_by(RequestMainModel.date_created))
         if is_filtered:
             query = select(RequestMainModel).where((sql.func.date(RequestMainModel.from_date).between(fdate, tdate))
                                                & sql.func.date(RequestMainModel.to_date).between(fdate, tdate))
@@ -206,16 +219,18 @@ class RequestRepository:
 
 
         if creator:
-            query = query.where(RequestMainModel.creator == creator).where(~RequestMainModel.is_deleted)
+            query = query.where(RequestMainModel.creator == creator)
+
+        if creator and is_archived:
+            query = (select(RequestMainModel)
+                     .where(RequestMainModel.creator == creator)
+                     .where(RequestMainModel.to_date < fdate)
+                     )
 
         results = (self.session.execute(query)).scalars()
 
         if not results:
             raise RequestNotFoundException("Request not found. Заявка не найдена")
-
-        # value1 = [data.to_dict() for data in results]
-        #
-        # print(value1, "<--- request_ list repo")
         value = [Request(**data.to_dict()) for data in results]
 
         return value
@@ -306,7 +321,7 @@ class RequestRepository:
 
         return [Visitor(**result.to_dict()) for result in results]
 
-    def update(self, request_payload, visitors_payload, cars_payload):
+    def update(self, request_payload, visitors_payload, cars_payload, files_payload):
         if request_payload:
             self.session.execute(
                 update(RequestMainModel)
@@ -325,6 +340,17 @@ class RequestRepository:
                 update(CarModel),
                 [car for car in cars_payload]
             )
+
+        if files_payload:
+            self.session.execute(
+                delete(FileModel).where(FileModel.request_id == request_payload['id'])
+            )
+
+            self.session.execute(
+                insert(FileModel),
+                files_payload
+            )
+
 
         if request_payload:
             return Request(**request_payload)

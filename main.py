@@ -17,10 +17,12 @@ from werkzeug.security import generate_password_hash
 #     print(i)
 
 
-A = datetime.strptime("2025-03-30", "%Y-%m-%d")
-B = datetime.strptime("2025-03-30", "%Y-%m-%d")
+A = datetime.strptime("2025-04-20", "%Y-%m-%d")
+B = datetime.strptime("2025-05-01", "%Y-%m-%d")
 
-A1 = datetime.strptime("2025-03-30", "%Y-%m-%d")
-B2 = datetime.strptime("2025-03-30", "%Y-%m-%d")
+# A1 = datetime.strptime("2025-03-30", "%Y-%m-%d")
+# B2 = datetime.strptime("2025-03-30", "%Y-%m-%d")
 
-print((A <= A1) & (B2 <= B))
+print((A < B))
+
+

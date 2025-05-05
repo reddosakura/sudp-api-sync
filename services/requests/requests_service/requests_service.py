@@ -11,8 +11,8 @@ class RequestsService:
     def get_request(self, request_id):
         return self.request_repository.get(request_id)
 
-    def list_requests(self, monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator_id):
-        return self.request_repository.list(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, creator_id)
+    def list_requests(self, monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, is_archived, creator_id):
+        return self.request_repository.list(monitoring, fdate, tdate, is_filtered, is_consideration, is_approval, is_admin, is_archived, creator_id)
 
     def search_request(self, value, status, is_reports, creator, fdate, tdate):
         return self.request_repository.search(value, status, is_reports, creator, fdate, tdate)
@@ -29,13 +29,13 @@ class RequestsService:
     def create_files(self, files_):
         return self.request_repository.add_files(files_)
 
-    def update_request(self, request_, visitors_, cars_):
+    def update_request(self, request_, visitors_, cars_, files_):
         if request_:
             request = self.request_repository.get(request_['id'])
             if not request:
                 raise RequestNotFoundException("Request not found. Заявка не найдена")
 
-        return self.request_repository.update(request_, visitors_, cars_)
+        return self.request_repository.update(request_, visitors_, cars_, files_)
 
     def get_request_types(self):
         types = self.request_repository.get_all_types()

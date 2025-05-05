@@ -52,7 +52,7 @@ def startup():
                         logged_in=False,
                         is_deleted=False,
                         login="admin",
-                        hashed_password=generate_password_hash("1234qwerty",
+                        hashed_password=generate_password_hash("dd5feab170eb29ab",
                                                                  method="pbkdf2:sha256", salt_length=8),
                     )
                 )
