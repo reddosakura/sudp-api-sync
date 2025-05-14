@@ -114,30 +114,6 @@ def startup():
                 try:
                     user_service.get_user_by_login(login="login3")
                 except UserNotFoundException:
-                    role = user_service.get_role_by_name("Ограниченное администрирование")
-                    user = user_service.create_user(
-                        CreateUserSchema(
-                            lastname="Петров",
-                            name="Иван",
-                            patronymic="Петрович",
-                            speciality="Начальник службы безопасности",
-                            role_id=role.id,
-                            logged_in=False,
-                            is_deleted=False,
-                            login="login3",
-                            hashed_password=generate_password_hash("12345678",
-                                                                   method="pbkdf2:sha256", salt_length=8),
-                        )
-                    )
-                    print(user, "user_created")
-                    unit.commit()
-        with DatabaseUnit() as unit:
-            with unit.session.begin():
-                repo = UserRepository(unit.session)
-                user_service = UsersService(repo)
-                try:
-                    user_service.get_user_by_login(login="login4")
-                except UserNotFoundException:
                     role = user_service.get_role_by_name("Заявитель")
                     user = user_service.create_user(
                         CreateUserSchema(
@@ -160,7 +136,7 @@ def startup():
                 repo = UserRepository(unit.session)
                 user_service = UsersService(repo)
                 try:
-                    user_service.get_user_by_login(login="login5")
+                    user_service.get_user_by_login(login="login4")
                 except UserNotFoundException:
                     role = user_service.get_role_by_name("Охрана")
                     user = user_service.create_user(
