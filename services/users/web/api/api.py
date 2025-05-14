@@ -58,7 +58,128 @@ def startup():
                 )
                 print(user, "user_created")
                 unit.commit()
+        with DatabaseUnit() as unit:
+            with unit.session.begin():
+                repo = UserRepository(unit.session)
+                user_service = UsersService(repo)
+                try:
+                    user_service.get_user_by_login(login="login1")
+                except UserNotFoundException:
+                    role = user_service.get_role_by_name("Администратор")
+                    user = user_service.create_user(
+                        CreateUserSchema(
+                            lastname="Иванов",
+                            name="Петр",
+                            patronymic="Петрович",
+                            speciality="Главный врач",
+                            role_id=role.id,
+                            logged_in=False,
+                            is_deleted=False,
+                            login="login1",
+                            hashed_password=generate_password_hash("12345678",
+                                                                   method="pbkdf2:sha256", salt_length=8),
+                        )
+                    )
+                    print(user, "user_created")
+                    unit.commit()
                 # user_service = UsersService(unit.session)
+        with DatabaseUnit() as unit:
+            with unit.session.begin():
+                repo = UserRepository(unit.session)
+                user_service = UsersService(repo)
+                try:
+                    user_service.get_user_by_login(login="login2")
+                except UserNotFoundException:
+                    role = user_service.get_role_by_name("Ограниченное администрирование")
+                    user = user_service.create_user(
+                        CreateUserSchema(
+                            lastname="Петров",
+                            name="Иван",
+                            patronymic="Петрович",
+                            speciality="Начальник службы безопасности",
+                            role_id=role.id,
+                            logged_in=False,
+                            is_deleted=False,
+                            login="login2",
+                            hashed_password=generate_password_hash("12345678",
+                                                                   method="pbkdf2:sha256", salt_length=8),
+                        )
+                    )
+                    print(user, "user_created")
+                    unit.commit()
+        with DatabaseUnit() as unit:
+            with unit.session.begin():
+                repo = UserRepository(unit.session)
+                user_service = UsersService(repo)
+                try:
+                    user_service.get_user_by_login(login="login3")
+                except UserNotFoundException:
+                    role = user_service.get_role_by_name("Ограниченное администрирование")
+                    user = user_service.create_user(
+                        CreateUserSchema(
+                            lastname="Петров",
+                            name="Иван",
+                            patronymic="Петрович",
+                            speciality="Начальник службы безопасности",
+                            role_id=role.id,
+                            logged_in=False,
+                            is_deleted=False,
+                            login="login3",
+                            hashed_password=generate_password_hash("12345678",
+                                                                   method="pbkdf2:sha256", salt_length=8),
+                        )
+                    )
+                    print(user, "user_created")
+                    unit.commit()
+        with DatabaseUnit() as unit:
+            with unit.session.begin():
+                repo = UserRepository(unit.session)
+                user_service = UsersService(repo)
+                try:
+                    user_service.get_user_by_login(login="login4")
+                except UserNotFoundException:
+                    role = user_service.get_role_by_name("Заявитель")
+                    user = user_service.create_user(
+                        CreateUserSchema(
+                            lastname="Федоров",
+                            name="Сергей",
+                            patronymic="Петрович",
+                            speciality="Заведующий стоматологией",
+                            role_id=role.id,
+                            logged_in=False,
+                            is_deleted=False,
+                            login="login4",
+                            hashed_password=generate_password_hash("12345678",
+                                                                   method="pbkdf2:sha256", salt_length=8),
+                        )
+                    )
+                    print(user, "user_created")
+                    unit.commit()
+        with DatabaseUnit() as unit:
+            with unit.session.begin():
+                repo = UserRepository(unit.session)
+                user_service = UsersService(repo)
+                try:
+                    user_service.get_user_by_login(login="login5")
+                except UserNotFoundException:
+                    role = user_service.get_role_by_name("Охрана")
+                    user = user_service.create_user(
+                        CreateUserSchema(
+                            lastname="Егоров",
+                            name="Иван",
+                            patronymic="Павлович",
+                            speciality="Сотрудник охраны",
+                            role_id=role.id,
+                            logged_in=False,
+                            is_deleted=False,
+                            login="login5",
+                            hashed_password=generate_password_hash("12345678",
+                                                                   method="pbkdf2:sha256", salt_length=8),
+                        )
+                    )
+                    print(user, "user_created")
+                    unit.commit()
+
 
 @router.get("/users", response_model=GetAllUsersSchema, tags=["Получение списка пользователей"])
 def get_users(show_deleted: bool = False):
